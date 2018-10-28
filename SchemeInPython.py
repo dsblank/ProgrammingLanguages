@@ -117,7 +117,7 @@ class Cons(object):
         self.cdr = cdr
     def __repr__(self):
         if self.car == "closure-exp":
-            return "#<procedure (%s)>" % self.cdr.cdr.car
+            return "#<procedure %s>" % self.cdr.cdr.car
         retval = ""
         current = self
         while current is not EmptyList and isinstance(current, Cons):
@@ -355,7 +355,10 @@ def evaluator(exp, env, handler, k):
     if car(exp) == "lit-exp":
         return apply(k, cadr(exp))
     elif car(exp) == "var-exp":
-        return apply(k, lookup_binding(cadr(exp), env)[1])
+        binding = lookup_binding(cadr(exp), env)
+        if not binding:
+            return apply(handler, "variable not defined: %s" % cadr(exp))
+        return apply(k, binding[1])
     elif car(exp) == "let-exp":
         variables = cadr(exp)
         return apply(evaluator_map, caddr(exp), env, handler,
@@ -719,16 +722,6 @@ trampoline(evaluator(parser(reader(lexer("factorial"))), toplevel_env, lambda e:
 # """)
 # ```
 
-# %%
-scheme("""
-(begin 
-  (define loop
-    (lambda ()
-        (loop)))
-  (loop)
-)
-""")
-
 # %% [markdown]
 # This loop doesn't use up memory as it runs... once started, it has zero additional impact. Why?
 
@@ -738,9 +731,9 @@ scheme("""
 # %% [markdown]
 # How do the runtimes compare between Python and Scheme-in-Python?
 
-# %%
-%%timeit
-scheme("(factorial 900)")
+# # %%
+# %%timeit
+# scheme("(factorial 900)")
 
 # %%
 def fact(n):
@@ -749,9 +742,9 @@ def fact(n):
     else:
         return n * fact(n - 1)
 
-# %%
-%%timeit
-fact(900)
+# # %%
+# %%timeit
+# fact(900)
 
 # %% [markdown]
 # So, the Scheme-in-Python runs about **2 magnitudes slower** than Python for a program that has lots of recursive function calls. That's not good, but there are some things we can do to improve that a bit. But for many programmers, this is a price worth paying for the additional power (e.g., continuations, call/cc, and no stack limit).
