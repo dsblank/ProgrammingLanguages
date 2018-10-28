@@ -1,0 +1,26 @@
+scheme register machine with unframed continuation stack
+list stack: (fib 35) = 20 seconds
+vector stack: (fib 35) = 17.6 seconds
+
+scheme register machine with continuation stack of frames
+list stack: (fib 35) = 14.9 seconds
+vector stack: (fib 35) = 14.8 seconds
+
+scheme register machine with continuations as lists of frames
+(fib 35) = 13.6 seconds
+
+scheme register machine with continuations as nested lists
+(fib 35) = 9.8 seconds
+
+----------------------------------------------------------
+
+python register machine with continuations as nested lists
+fib(35) = 16 seconds
+
+python register machine with framed continuation stack
+fib(35) = 21 seconds
+
+python register machine with unframed continuation stack
+deque stack: fib(35) = 24.5 seconds
+vector stack: fib(35) = 40.4 seconds
+
