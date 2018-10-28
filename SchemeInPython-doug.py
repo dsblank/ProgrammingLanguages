@@ -684,13 +684,24 @@ def main(exp_reg, env_reg, handler_reg, k_reg, start):
         goto .eval_app
 
     ##################################
+    label .apply_proc
+    # proc_reg, args_reg, env_reg, handler_reg, k2_reg
+    #def apply_proc(proc, args, env, handler, k2):
+    if proc_reg[0] == "proc1":
+        k = proc_reg[1]
+        k_reg, value_reg = k, car(args_reg)
+        goto .apply_cont
+    else:
+        # we should never get here
+        raise Exception("unrecognized procedure type: %s" % proc_reg[0])
+
+    ##################################
     # args_reg, env_reg, handler_reg, k_reg
     #def callcc_prim(args, env, handler, k):
     label .callcc_prim
     proc = car(args_reg)
-    ## FIXME: what should this be?
-    fake_k = lambda args, env, handler, k2: apply_cont(k_reg, car(args_reg))
-    f_reg, args_reg, env_reg, handler_reg, k_reg = (proc, List(fake_k), env_reg, handler_reg, k_reg)
+    fake_k = ["proc1", k_reg]
+    f_reg, args_reg = proc, List(fake_k)
     goto .eval_app
 
     ##################################
@@ -795,11 +806,15 @@ toplevel_env = [[
 # Finally, we define a short-cut for running programs:
 
 # %%
+
+def error_handler(msg):
+    raise Exception(msg)
+
 def scheme(exp):
     return main(
         exp_reg=parser(reader(lexer(exp))),
         env_reg=toplevel_env,
-        handler_reg = lambda error: error,
+        handler_reg = error_handler,
         k_reg = ["cont0"],
         start="evaluator"
     )
@@ -829,7 +844,11 @@ scheme("(if 0 2 3)")
 scheme("(if 1 2 3)")
 
 # %%
-scheme("(+ 1 (error 23))")
+try:
+    scheme("(+ 1 (error 23))")
+    print("FAIL: it did not cause an exception!")
+except:
+    print("Yes! it caused an exception!")
 
 # %%
 scheme("(print 12 56)")
