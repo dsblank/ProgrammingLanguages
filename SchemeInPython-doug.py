@@ -363,8 +363,8 @@ def main(exp_reg, env_reg, handler_reg, k_reg, start):
     label .start
     if start == "evaluator":
         goto .evaluator
-    elif start == "add_prim":
-        goto .add_prim
+    elif start == "not_prim":
+        goto .not_prim
     elif start == "pair_q_prim":
         goto .pair_q_prim
     elif start == "error_prim":
@@ -661,8 +661,8 @@ def main(exp_reg, env_reg, handler_reg, k_reg, start):
     label .map_prim
     f = car(args_reg)
     args = cadr(args_reg)
-    if null_q(args_reg):
-        k_reg, value_reg = k_reg, args_reg
+    if null_q(args):
+        k_reg, value_reg = k_reg, args
         goto .apply_cont
     else:
         f_reg, args_reg, env_reg, handler_reg, k_reg = (f, args, env_reg, handler_reg,
